@@ -13,18 +13,31 @@ add_executable(pico_emb
 
 target_include_directories(pico_emb PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
+    ${PICO_SDK_PATH}/src/rp2_common/hardware_i2c/include
+    ${PICO_SDK_PATH}/src/rp2_common/hardware_pwm/include
+    ${PICO_SDK_PATH}/src/rp2_common/hardware_uart/include
+    ${PICO_SDK_PATH}/src/rp2_common/hardware_gpio/include
     )
 
 # Linking to FreeRTOS-Kernel-Heap4 means we use a dynamic heap for allocations
 target_link_libraries(pico_emb PRIVATE
+    pico_stdlib
+    hardware_i2c
+    hardware_pwm
+    hardware_uart
+    hardware_gpio
     pico_async_context_freertos
     FreeRTOS-Kernel-Heap4
-    pico_stdlib
+    Fusion
     )
+
+# Enable USB CDC stdio so putchar_raw goes to USB serial (mouse client)
+pico_enable_stdio_usb(pico_emb 1)
+pico_enable_stdio_uart(pico_emb 0)
 # Set the nunber of cores to 1.
 # This defaults to 2 in FreeRTOSConfig_examples_common.h if not defined in here
 target_compile_definitions(pico_emb PRIVATE
-    configNUMBER_OF_CORES=1
+    configNUMBER_OF_CORES=2
     )
 if(PICO_CYW43_SUPPORTED)
     # For led support on pico_w
